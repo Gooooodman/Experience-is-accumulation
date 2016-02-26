@@ -100,7 +100,7 @@ def main(args):
     cdn_server =  cf.get(option.platform,"server")
     cdn_user = cf.get(option.platform,"user")
     #test_passfile 是代表测试服务器存在pass的路径,后续与163进行统一存放
-    cdn_pass_file = cf.get(option.platform,"test_passfile")
+    cdn_pass_file = cf.get(option.platform,"passfile")
     cdn_dir = cf.get(option.platform,"dir")
     cdn_url = cf.get(option.platform,"url")
 

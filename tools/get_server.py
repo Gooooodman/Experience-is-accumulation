@@ -106,8 +106,8 @@ class get_server():
 		alls = {}
 		for p in all:
 			plat=all[p].get("platform")
-			if name == "android":
-				name = "ios_yueyu"
+			# if name == "android":
+			# 	name = "ios_yueyu"
 			if name == plat:
 			 	id=all[p].get('id')
 			 	server="%s_s%s"%(plat,id)

@@ -92,7 +92,7 @@ def main(argv):
     #临时存在文件目录
     #update.xml 这里目前获取的是admin下的update_xxx_xxx.xml 后续生成h2 在更换
     #work_dir = "/home/yansheng/admin/dzmo-client/"    
-    work_dir = os.path.dirname(ABSPATH) + "/wmmo-client/" 
+    work_dir = os.path.dirname(os.path.dirname(ABSPATH)) + "/dzmo-client/"
     #配置文件路径
     rsync_conf=os.path.dirname(ABSPATH)+"/rsync.conf"
     is_qq = "false"
@@ -148,6 +148,8 @@ def main(argv):
             is_qq = "true"               
         else:
             #url_update_xml 源站 update_zh_android.xml第一次要传上去
+            #android
+            #http://mwygzres.game13.com/android/
             url_update_xml = url + option.os + "/" + update_xml
             #对资源目录进行切换
             change_cdn_dir = change_cdn_res_dir(url_update_xml)
@@ -173,8 +175,7 @@ def main(argv):
              os.mkdir(update_xml_dir) 
 
         api_url= cf.get(option.platform,"api_url")
-        #api = "%s?os=%s&need_update=true&is_test=true&lang=%s&is_qq=%s"%(api_url,option.os,lang2,is_qq)
-        #h2  API 
+        #h2  update API 
         api = "%s?os=%s&need_update=true"%(api_url,option.os)
         #检查接口返回值是否正确
         try:

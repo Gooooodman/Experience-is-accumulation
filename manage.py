@@ -108,8 +108,8 @@ def main(avgr):
 				print "\033[1;31m所指定的 %s 平台不在配置列表(server.conf)中,请核对或者进行添加..\033[0m"%(option.name)
 				exit(1)		
 			url=cf.get("get_all_server",option.name)
-			if option.name == "android":
-				option.name = "ios_yueyu"
+			# if option.name == "android":
+			# 	option.name = "ios_yueyu"
 
 			gt=get_server()
 			gt.down_xml(url,option.name)
@@ -235,7 +235,7 @@ def main(avgr):
 						exit()				
 					game=monitor()
 					task_queue = make_topo_queue(all)
-					game.run_cmd_thead(parallel,task_queue,option.shell_cmd					game.run_cmd_thead(parallel,task_queue,option.shell_cmd,option.progress))
+					game.run_cmd_thead(parallel,task_queue,option.shell_cmd,option.progress)
 					#执行erland命令 --erlang
 				if option.erland_cmd:
 					erland_cmd = """./gamectl eval '%s'"""%option.erland_cmd
@@ -314,11 +314,7 @@ def main(avgr):
 			serverslist1=split_single(servers)
 			serverslist=[]
 			for single in serverslist1:
-				if single.split("_")[0] == 'android':
-					s=single.replace("android","ios_yueyu")
-					serverslist.append(s)
-				else:
-					serverslist.append(single)
+				serverslist.append(single)
 			gt=get_server()
 			bigdic=gt.get_all_plat_info()
 			rmovelist=[]
