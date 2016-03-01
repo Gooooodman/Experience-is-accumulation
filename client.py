@@ -55,10 +55,10 @@ def down_xml(backup_path,url,verbose=False):
 
 def parser_command():
     usage = '''%prog     
-       -p    平台(qq,zh,vn,en,tw,i9) 
-       -o    系统(andriod,ios,ios_yueyu)
-       -s    单个update_000xx.xml
-       eg:   %prog -p qq -o android 国服安卓  | -s update_0002.xml  只传输单个文件'''
+       -p, --plat     平台(qq,zh,vn,en,tw,i9) 
+       -o, --os       系统(andriod,ios,ios_yueyu)
+       -s,--single    单个update_000xx.xml
+       eg:   %prog -p qq -o android 更新qq安卓到正式模式  | -s update_0002.xml  只传输单个文件'''
     parser = OptionParser(usage=usage)
     parser.add_option("-o","--os",action="store",type="choice",choices=("ios","android","ios_yueyu"),dest="os",help="指定一种操作系统:ios,android,ios_yueyu",metavar="ios|android|ios_yueyu")
     parser.add_option("-p","--plat",action="store",type="str",dest="platform",help="指定平台:qq,zh,tw,en",metavar="qq|zh|tw|en")

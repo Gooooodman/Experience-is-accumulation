@@ -64,9 +64,9 @@ def change_cdn_res_dir(url_update_xml):
 
 def parser_command():
     usage = '''%prog     
-       -p    平台(qq,zh,vn,en,tw,i9) 
-       -o    系统(andriod,ios,ios_yueyu)
-       eg:   %prog -p qq -o android 国服安卓'''
+       -p ,--plat                     平台(qq,zh,vn,en,tw,i9) 
+       -o ,--os                       系统(andriod,ios,ios_yueyu)
+       eg:   %prog -p qq -o android   更新qq安卓到测试模式'''
     parser = OptionParser(usage=usage)
     parser.add_option("-o","--os",action="store",type="choice",choices=("ios","android","ios_yueyu"),dest="os",help="指定一种操作系统:ios,android,ios_yueyu",metavar="ios|android|ios_yueyu")
     parser.add_option("-p","--plat",action="store",type="str",dest="platform",help="指定平台:qq,zh,tw,en",metavar="qq|zh|tw|en")
@@ -139,7 +139,7 @@ def main(argv):
         #update_xx_xx.xml  url
         if option.platform == "qq":
             url = cf.get(option.platform,"url")
-            url_update_xml = url + option.os + "/"+ "update_000028.xml"
+            url_update_xml = url + "/" + option.os + "/"+ "update_000028.xml"
             cdn_dir = get_update_dir(url_update_xml)
             if cdn_dir == "c":
                 change_cdn_dir = "d"
@@ -150,13 +150,13 @@ def main(argv):
             #url_update_xml 源站 update_zh_android.xml第一次要传上去
             #android
             #http://mwygzres.game13.com/android/
-            url_update_xml = url + option.os + "/" + update_xml
+            url_update_xml = url + "/" + option.os + "/" + update_xml
             #对资源目录进行切换
             change_cdn_dir = change_cdn_res_dir(url_update_xml)
             #print change_cdn_dir
         rsync_path = option.os+"/"+change_cdn_dir
         #开始同步资源到cdn
-        Rsync_file(passfile,user,rsync_dir,cdn_server,res_file,rsync_path,verbose=option.verbose)
+        Rsync_file(passfile,user,rsync_dir,cdn_server,res_file,rsync_path,rsync_opts='-Ratpv --progress',count=True)
 
 
         #################第三步：CDN刷新##############

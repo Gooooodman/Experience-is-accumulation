@@ -26,7 +26,7 @@ def down_all_server_list(backup_path,url,verbose=True):
         res = urllib2.urlopen(url)
         server_list = res.read()
         for server in server_list.split():
-            down_xml(backup_path,server)
+            down_xml(backup_path,server,verbose)
     except urllib2.HTTPError,e:
         error('获取%s 状态码为: %s'%(url,e.code))
         exit(1)
@@ -64,7 +64,7 @@ def main(args):
         #conf 路径
         rsync_conf=os.path.dirname(ABSPATH)+"/rsync.conf"
         #列表路径
-        server_list_path = os.path.dirname(ABSPATH) + "/dzmo-client/server_list"
+        server_list_path = os.path.dirname(os.path.dirname(ABSPATH)) + "/dzmo-client/server_list"
         mkdir_p(server_list_path)
         os.popen("rm -rf %s/*"%server_list_path)
         cf.read(rsync_conf)

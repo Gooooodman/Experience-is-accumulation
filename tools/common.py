@@ -65,9 +65,9 @@ def split_single(singles):
 def confirm():
     while True:
         anwser = raw_input("确认cmd无误请按yes,取消输入no\t")
-        if re.match(r"yes",anwser,re.I):
+        if re.match(r"yes$",anwser,re.I):
             break
-        elif re.match(r"no",anwser,re.I):
+        elif re.match(r"no$",anwser,re.I):
             exit(1)
 
 #判断文件与目录
