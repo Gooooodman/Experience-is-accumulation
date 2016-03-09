@@ -57,8 +57,11 @@ def change_cdn_res_dir(url_update_xml):
     if ret.returncode != 0:
         message="切换cdn %s 资源目录失败:%s,%s"%(url_update_xml,stdout.strip("\n"),stderr.strip("\n"))
         print message
-        exit(1) 
+        exit(1)
     return change_cdn_dir
+
+
+
 
 
 
@@ -120,23 +123,17 @@ def main(argv):
         #update.xml  都保存在测试服的::dzmo/android
         test_update_xml_dir = cf.get("test","update_xml_dir")
         #先通过./gen_update_xml.escript android zh 获取update
-        #################第一步: 更新update_xml到测试服182##############
+        
         lang_work_dir = "%s%s/%s/"%(work_dir,lang,option.os)
         update_xml = "update_%s_%s.xml"%(lang,option.os)
         update_xml_file = lang_work_dir + update_xml
         #判断update_xx_xx.xml是否存在
         ensure(update_xml_file)
-        #开始同步到测试服
-        Rsync_file(test_passfile,test_user,test_rsync_dir,test_cdn_server,update_xml_file,test_update_xml_dir,verbose=option.verbose)
-
-        #################第二步：同步资源到测试服##############
-        res_dir=lang_work_dir + "latest/"
-        #判断资源目录是否存在
-        ensure(res_dir)
-        #资源文件为* (全部)
-        res_file = res_dir + "*"
+        
+        #修改本地update dir 
 
         #update_xx_xx.xml  url
+        ###################    第一步  修改本地update_zh_android 在更到测试服########################
         if option.platform == "qq":
             url = cf.get(option.platform,"url")
             url_update_xml = url + "/" + option.os + "/"+ "update_000028.xml"
@@ -154,7 +151,18 @@ def main(argv):
             #对资源目录进行切换
             change_cdn_dir = change_cdn_res_dir(url_update_xml)
             #print change_cdn_dir
+        #开始同步到测试服
+        Rsync_file(test_passfile,test_user,test_rsync_dir,test_cdn_server,update_xml_file,test_update_xml_dir,verbose=option.verbose)
+
+        #################第二步：同步资源到测试服##############
+        res_dir=lang_work_dir + "latest/"
+        #判断资源目录是否存在
+        ensure(res_dir)
+        #资源文件为* (全部)
+        res_file = res_dir + "*"
+
         rsync_path = option.os+"/"+change_cdn_dir
+
         #开始同步资源到cdn
         Rsync_file(passfile,user,rsync_dir,cdn_server,res_file,rsync_path,rsync_opts='-Ratpv --progress',count=True)
 
