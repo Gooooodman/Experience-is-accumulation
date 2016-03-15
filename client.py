@@ -41,7 +41,7 @@ def down_xml(backup_path,url,verbose=False):
     try:
         res = urllib2.urlopen(url)
         if verbose:
-            print "%s \033[1;32m保存成功...\033[0m"%channel_xml
+            success("%s 备份成功..."%channel_xml)
         file = open("%s/%s"%(backup_path,channel_xml),"w")
         file.write(res.read())
         file.close()
@@ -58,6 +58,7 @@ def parser_command():
        -p, --plat     平台(qq,zh,vn,en,tw,i9) 
        -o, --os       系统(andriod,ios,ios_yueyu)
        -s,--single    单个update_000xx.xml
+       -v,--verbose   显示更多信息
        eg:   %prog -p qq -o android 更新qq安卓到正式模式  | -s update_0002.xml  只传输单个文件'''
     parser = OptionParser(usage=usage)
     parser.add_option("-o","--os",action="store",type="choice",choices=("ios","android","ios_yueyu"),dest="os",help="指定一种操作系统:ios,android,ios_yueyu",metavar="ios|android|ios_yueyu")
@@ -123,7 +124,8 @@ def main(args):
         else:
             #排除一些文件
             local_file_path = client_dir + "*"
-            excule_xml = "update_000028.* update_002001.* update_002003.*"
+            #如果要排除一些文件,使用下面的格式,exclue_file=excule_xml
+            excule_xml = ["update_000028.xml"]
             Rsync_file(cdn_pass_file,cdn_user,cdn_dir,cdn_server,local_file_path,option.os,sshconnect=SSH,exclue_file=excule_xml,verbose=option.verbose)
  
     except KeyboardInterrupt:

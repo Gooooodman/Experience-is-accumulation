@@ -16,9 +16,10 @@ rsync_dir             rsync的 根目录如dizun,dzmo
 cdn_server            cdn服务器
 local_file_path      本地文件路径
 rsync_sub_dir        cdn上的目录如：android 则最后会命令为 ::dzmo/android
+count                 大文件不断输出传输过程 ---传资源使用
 '''
 
-def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_sub_dir,exclue_file=None,rsync_opts='-Rautpv',sshconnect=None,verbose=False):
+def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_sub_dir,exclue_file=None,rsync_opts='-Ratpv',sshconnect=None,verbose=False,count=False):
     #local_dir 进入目录
     local_dir=os.path.split(local_file_path)[0]
     #传送的文件
@@ -28,9 +29,13 @@ def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_su
     nofile=re.compile("failed: No such file or directory") 
     permission = re.compile("by root when running as root") 
     ########################错误收集########################
-    if exclue_file:
-        for f in exclue_file.split():
-            exclude_opt += "--exclude %s  " % f
+    if exclue_file != None:
+        if type(exclue_file) is list:
+            for f in exclue_file:
+                exclude_opt += "--exclude %s  " % f
+        else:
+            warn("排除文件必须是一个list")
+            exit(1)
     
     #远程调用  
     try:
@@ -47,9 +52,14 @@ def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_su
             confirm()
             print "正在同步中.请等待....."
             run = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-            while run.poll() == None:
-                Progress()      
-            stdout,stderr = run.communicate()        
+            if count:
+                while run.poll() == None:
+                    line = run.stdout.readline()
+                    print line.strip("\n")
+            else:
+                while run.poll() == None:
+                    Progress()
+                stdout,stderr = run.communicate()        
             returncode = run.returncode
 
         if returncode != 0:
@@ -65,9 +75,10 @@ def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_su
                 raise OtherException(message)             
         else:                
             if verbose:
-                print("\033[1;32m#########################信息如下#########################\033[0m")
-                print stdout.strip("\n") 
-                print("\033[1;32m##########################################################\033[0m")
+                if count == False:
+                    print("\033[1;32m#########################信息如下#########################\033[0m")
+                    print stdout.strip("\n") 
+                    print("\033[1;32m##########################################################\033[0m")
             success("rsync 传送成功...")
     except OtherException,err:
         error(err)
