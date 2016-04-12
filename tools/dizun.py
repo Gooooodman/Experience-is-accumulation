@@ -105,7 +105,7 @@ class monitor():
 
 		#传送php.tar.gz
 	def send_php_tar(self,host,sshport,file="/tmp/php.tar.gz",desfile="php.tar.gz"):
-		PHP_SRC_CODE_DIR="/data/web/dzmo/admin"
+		PHP_SRC_CODE_DIR="/data/web/mwygz/admin"
 		despath="%s/%s"%(PHP_SRC_CODE_DIR,desfile)	
 		#上传php.tar.gz
 		self.send_file(host,sshport,file,PHP_SRC_CODE_DIR)
@@ -120,15 +120,15 @@ class monitor():
 
 		#从首服下载php代码并下载到本地/tmp
 	def tar_down_php(self,host,sshport,downpath="/tmp"):
-		PHP_SRC_CODE_DIR="/data/web/dzmo/admin"
+		PHP_SRC_CODE_DIR="/data/web/mwygz/admin"
 		CODE_TAR="php.tar.gz"
-		TMP_FROM="/data/web/dzmo/admin/php.tar.gz"
+		TMP_FROM="/data/web/mwygz/admin/php.tar.gz"
 		#从服务器上打包
 		cmd = '''"cd %s && /bin/tar zcf %s --exclude=protected/config/config.php --exclude=protected/template_c/* --exclude=protected/config/servers/*  public  protected  log"'''%(PHP_SRC_CODE_DIR,CODE_TAR)
 		SSH=ssh(host=host,port=sshport)
 		stdout,stderr,returncode=SSH.run(cmd,drop_socket=False)
 		if returncode != 0:
-			message = '\033[1;31m"fail","%s:%s"cmd:"%s" 失败...\033[0m'
+			message = '\033[1;31m"fail","%s:%s"cmd:"%s" 失败...\033[0m'%(host,port,cmd)
 			raise Exception(message)
 		print '''\033[1;32m"success","%s:%s" 路径:"%s"打包文件成功...\033[0m'''%(host,sshport,TMP_FROM)	
 

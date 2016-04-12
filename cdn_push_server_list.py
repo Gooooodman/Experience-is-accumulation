@@ -91,6 +91,7 @@ def main(args):
         passfile = cf.get(option.platform,"passfile")  
         file_list = cf.get(option.platform,"file_list")
         cdn_dir = cf.get(option.platform,"dir")
+        #目前H2没有other 这里暂时保留
         if option.platform == "tszn":
             file_list_url = "%s?os=%s&test=%s&other=%s"%(file_list,option.os,Test,option.platform)
         else:
@@ -103,7 +104,7 @@ def main(args):
         #同步到cdn
         ##########################################  第二步 同步 server_list  ##########################################
         local_file_path = server_list_path + "/*"
-        sub_dir = option.os+"/server_list/" + option.version
+        sub_dir = option.os + "/server_list/" + option.version + "/"
         Rsync_file(passfile,cdn_user,cdn_dir,cdn_server,local_file_path,sub_dir,exclue_file=exclude_str)
 
         #cdn刷新

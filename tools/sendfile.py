@@ -21,13 +21,14 @@ count                 大文件不断输出传输过程 ---传资源使用
 
 def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_sub_dir,exclue_file=None,rsync_opts='-Ratpv',sshconnect=None,verbose=False,count=False):
     #local_dir 进入目录
+    global stdout,stderr
     local_dir=os.path.split(local_file_path)[0]
     #传送的文件
     send_file=os.path.split(local_file_path)[1]
     exclude_opt = ""
     ########################错误收集########################
     nofile=re.compile("failed: No such file or directory") 
-    permission = re.compile("by root when running as root") 
+    permission = re.compile("by root when running as root")
     ########################错误收集########################
     if exclue_file != None:
         if type(exclue_file) is list:
@@ -64,7 +65,7 @@ def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_su
 
         if returncode != 0:
             message=stderr.strip("\n")        
-            if nofile.findall(message):
+            if nofile.findall(message) or message == "":
                 warn("没有文件可传!!! 3s后继续...")
                 time.sleep(3)
             elif permission.findall(message):
@@ -77,7 +78,8 @@ def Rsync_file(passfile,rsync_user,rsync_dir,cdn_server,local_file_path,rsync_su
             if verbose:
                 if count == False:
                     print("\033[1;32m#########################信息如下#########################\033[0m")
-                    print stdout.strip("\n") 
+                    print stdout.strip("\n")
+                    print stderr.strip("\n") 
                     print("\033[1;32m##########################################################\033[0m")
             success("rsync 传送成功...")
     except OtherException,err:

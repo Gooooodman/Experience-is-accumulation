@@ -41,7 +41,7 @@ def down_xml(backup_path,url,verbose=False):
     try:
         res = urllib2.urlopen(url)
         if verbose:
-            success("%s 备份成功..."%channel_xml)
+            success("%s 备份/下载成功..."%channel_xml)
         file = open("%s/%s"%(backup_path,channel_xml),"w")
         file.write(res.read())
         file.close()
@@ -54,7 +54,8 @@ def down_xml(backup_path,url,verbose=False):
 
 
 def parser_command():
-    usage = '''%prog     
+    usage = '''%prog
+       提示：首次系统(如:ios_yueyu)在cdn上是没有update_xxx.xml文件的,需手动上传一个xml上去在修改rsync.conf 备份的渠道号,在执行。     
        -p, --plat     平台(qq,zh,vn,en,tw,i9) 
        -o, --os       系统(andriod,ios,ios_yueyu)
        -s,--single    单个update_000xx.xml
@@ -107,6 +108,7 @@ def main(args):
 
     #需要备份的update url
     back_update = cf.get(option.platform,"back_channel_%s"%option.os)
+    if not back_update:back_update="update_%s_%s.xml"%(option.platform,option.os)
     back_update_url = cdn_url + "/" + option.os +"/" + back_update
     #备份
     down_xml(backup_path,back_update_url,verbose=option.verbose)
@@ -125,7 +127,8 @@ def main(args):
             #排除一些文件
             local_file_path = client_dir + "*"
             #如果要排除一些文件,使用下面的格式,exclue_file=excule_xml
-            excule_xml = ["update_000028.xml"]
+            excule_xml =[ e for e in cf.get(option.platform,"exclude_update").split(",")]
+            if len(excule_xml) == 0:excule_xml=None
             Rsync_file(cdn_pass_file,cdn_user,cdn_dir,cdn_server,local_file_path,option.os,sshconnect=SSH,exclue_file=excule_xml,verbose=option.verbose)
  
     except KeyboardInterrupt:
