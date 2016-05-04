@@ -62,9 +62,9 @@ def split_single(singles):
     return  all_servers
 
 #确认
-def confirm():
+def confirm(show="确认cmd无误请按yes,取消输入no\t"):
     while True:
-        anwser = raw_input("确认cmd无误请按yes,取消输入no\t")
+        anwser = raw_input(show)
         if re.match(r"^yes$",anwser,re.I):
             break
         elif re.match(r"^no$",anwser,re.I):
