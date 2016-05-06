@@ -9,6 +9,7 @@ import urllib2
 sys.setdefaultencoding('utf-8')
 from optparse import OptionParser
 import ConfigParser
+import subprocess
 from tools.colour import *
 from tools.sendfile import Rsync_file
 from client import down_xml
@@ -24,7 +25,10 @@ def down_all_server_list(backup_path,url,verbose=True):
     res = None
     try:
         res = urllib2.urlopen(url)
-        server_list = res.read()
+        server_list = res.read()  
+        if server_list == "":
+            warn("%s中没有内容?请检查..."%url)
+            exit(11)          
         for server in server_list.split():
             down_xml(backup_path,server,verbose)
     except urllib2.HTTPError,e:
@@ -46,15 +50,20 @@ def parser_command():
     parser.add_option("-o","--os",action="store",type="choice",choices=("ios","android","ios_yueyu"),dest="os",help="指定一种操作系统:ios,android,ios_yueyu",metavar="ios|android|ios_yueyu")
     parser.add_option("-p","--plat",action="store",type="str",dest="platform",help="指定平台:qq,zh,tw,en",metavar="qq|zh|tw|en")
     parser.add_option("--ver",action="store",type="str",dest="version",help="指定版本: v1.1.5",metavar="v1.1.5")
+    parser.add_option("--clude",action="store",type="str",dest="clude",help="只包含渠道选服列表编号 --clude 000016,000019",metavar="000016,000019")
     parser.add_option("--exclude",action="store",type="str",dest="exclude",help="排除渠道选服列表编号 --exclude 010116,010119",metavar="010116,010119")
     parser.add_option("--test",action="store_true",dest="test",help="测试模式")
+    parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="显示更多信息")
     option,args = parser.parse_args()
     if not option.os or not option.platform or not option.version:
         parser.error("\033[1;31m3个选项必须同时指定..\033[0m")
     platforms =  cf.sections()
     if option.platform not in platforms:
         error("指定的(%s)语言不在配置文件中%s..请检查"%(option.platform,rsync_conf))
-        exit(1)     
+        exit(1)  
+    if option.clude and option.exclude:
+        error("指定的 --clude  和 --exclude 不能同时使用..")
+        exit(1)           
     return (option,args)
 
 
@@ -79,12 +88,24 @@ def main(args):
             Test = "true"
         else:
             Test = "false"
+        if option.verbose:
+            verbose = True
+        else:
+            verbose = False
         #排除选服xml
         exclude_str=None
         if option.exclude:  
             exclude_str="" 
             x=lambda tables: ["server_list_%s.xml"%t for t in tables.split(",")]
             exclude_str=x(option.exclude)
+
+        #包含的xml
+        clude_str=None
+        if option.clude:
+            clude_str=""
+            for c in option.clude.split(","):
+                c = "server_list_%s.xml"%c
+                clude_str = clude_str + " " + c
 
         cdn_server = cf.get(option.platform,"server")
         cdn_user = cf.get(option.platform,"user")
@@ -103,11 +124,28 @@ def main(args):
         down_all_server_list(server_list_path,file_list_url)
         #同步到cdn
         ##########################################  第二步 同步 server_list  ##########################################
-        local_file_path = server_list_path + "/*"
+        if clude_str:
+            local_file_path = server_list_path + "/" + clude_str
+        else:
+            local_file_path = server_list_path + "/*"   
         sub_dir = option.os + "/server_list/" + option.version + "/"
-        Rsync_file(passfile,cdn_user,cdn_dir,cdn_server,local_file_path,sub_dir,exclue_file=exclude_str)
-
+        Rsync_file(passfile,cdn_user,cdn_dir,cdn_server,local_file_path,sub_dir,exclue_file=exclude_str,verbose=verbose)
         #cdn刷新
+        if option.platform == "xmzh":
+            for root,dirs,files in os.walk(server_list_path):
+                for f in files:
+                    url = "http://file.i2igame.com/devilprincess/android/server_list/%s/%s"%(option.version,f)
+                    curl='''https://api.ccu.akamai.com/ccu/v2/queues/default -H "Content-Type:application/json" -d '{"objects" : ["%s"]}' -u haoyue612@163.com:"haoyue612"'''%url
+                    cmd = "curl %s"%curl
+                    #print cmd
+                    run = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+                    stdout,stderr = run.communicate()
+                    if run.returncode != 0:
+                        print stderr,stdout
+                    else:
+                        if eval(stdout)["httpStatus"] == 201:
+                            success("/%s/%s 刷新成功..."%(option.version,f))
+
         #pass
     except IOError,err:
         warn(err)

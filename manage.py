@@ -124,10 +124,11 @@ def main(avgr):
 				else:
 					parallel = len(all)
 			alllist=sorted(all.iteritems(),key=lambda a:int(a[1].get("id")),reverse=False)
-			if option.name == "ios_yueyu":
-				server = "s12"
-			else:
-				server = "s1"
+			# if option.name == "ios_yueyu":
+			# 	server = "s12"
+			# else:
+			server = "s1"
+			
 			sshport = int(cf.get("port",option.name))
 			if option.topo == "ALL":
 				#开始执行--start

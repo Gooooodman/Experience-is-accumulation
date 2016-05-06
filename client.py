@@ -105,10 +105,10 @@ def main(args):
     cdn_pass_file = cf.get(option.platform,"passfile")
     cdn_dir = cf.get(option.platform,"dir")
     cdn_url = cf.get(option.platform,"url")
-
+    lang = cf.get(option.platform,"lang")
     #需要备份的update url
     back_update = cf.get(option.platform,"back_channel_%s"%option.os)
-    if not back_update:back_update="update_%s_%s.xml"%(option.platform,option.os)
+    if not back_update:back_update="update_%s_%s.xml"%(lang,option.os)
     back_update_url = cdn_url + "/" + option.os +"/" + back_update
     #备份
     down_xml(backup_path,back_update_url,verbose=option.verbose)
@@ -116,7 +116,7 @@ def main(args):
     try:
         SSH = ssh(host=test_ip,port=test_port)
         if option.platform == "qq":
-            update_xml = "update_000028.xml"
+            update_xml = "update_000028.xml update_000184.xml"
             local_file_path = client_dir + update_xml
             #存放cdn 目录
             Rsync_file(cdn_pass_file,cdn_user,cdn_dir,cdn_server,local_file_path,option.os,sshconnect=SSH,verbose=option.verbose)
@@ -128,7 +128,8 @@ def main(args):
             local_file_path = client_dir + "*"
             #如果要排除一些文件,使用下面的格式,exclue_file=excule_xml
             excule_xml =[ e for e in cf.get(option.platform,"exclude_update").split(",")]
-            if len(excule_xml) == 0:excule_xml=None
+            if len(excule_xml) == 0 or excule_xml[0] == "":
+                excule_xml=None
             Rsync_file(cdn_pass_file,cdn_user,cdn_dir,cdn_server,local_file_path,option.os,sshconnect=SSH,exclue_file=excule_xml,verbose=option.verbose)
  
     except KeyboardInterrupt:
